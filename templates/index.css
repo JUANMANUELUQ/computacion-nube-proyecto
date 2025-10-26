@@ -1,0 +1,105 @@
+    /* Fondo general */
+    body {
+      background: #f1f6fb;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      padding: 30px;
+    }
+
+    /* Contenedor tipo tarjeta con borde redondeado y borde azul */
+    .panel {
+      background: #e9f0fb;
+      border: 2px solid #4a6fb1;
+      border-radius: 18px;
+      padding: 36px;
+      max-width: 980px;
+      margin: 20px auto;
+      box-shadow: 0 6px 18px rgba(74,111,177,0.08);
+    }
+
+    .panel h1 {
+      text-align: center;
+      font-weight: 600;
+      color: #17385b;
+      margin-bottom: 28px;
+      letter-spacing: 0.4px;
+    }
+
+    /* Form layout like the image */
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .form-row .form-control {
+      height: 42px;
+      border-radius: 6px;
+      border: 1px solid #c7d3ee;
+      background: #fff;
+    }
+
+    .form-row label {
+      min-width: 120px;
+      color: #17385b;
+      font-weight: 500;
+    }
+
+    .btn-accept, .btn-publish {
+      min-width: 110px;
+      height: 38px;
+      border-radius: 6px;
+      border: 1px solid #8fa9e6;
+      background: linear-gradient(#f8fbff,#eaf2ff);
+      color: #123a6a;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.02);
+    }
+
+    /* Responsive: stack inputs on small screens */
+    @media (max-width: 576px) {
+      .form-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .form-row label { min-width: auto; }
+    }
+
+
+    /* Registros realizados */
+    /* Filas con separación y sombreado similar al mockup */
+    #activityBody tr {
+    background: #fff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    border-radius: 6px;
+    }
+
+    .activity-row {
+    display: table-row;
+    }
+
+    .activity-cell {
+    padding: 10px 12px;
+    vertical-align: middle;
+    }
+
+    .activity-link {
+    color: #1a73e8;
+    text-decoration: underline;
+    font-weight:600;
+    }
+
+    .row-muted {
+    background:#efefef;
+    }
+
+    /* Botón eliminar rojo */
+    .btn-delete {
+    background: #d11a2a;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.06);
+    }
+    .btn-delete:hover { opacity: 0.95; }

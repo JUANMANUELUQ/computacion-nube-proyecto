@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestión de páginas y aplicaciones web - (Original)</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="index.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="panel">
+    <h1>Gestión de páginas y aplicaciones web</h1>
+
+    <!-- Nombre del host -->
+    <div class="form-row">
+      <label for="hostname">Nombre del host</label>
+      <input id="hostname" class="form-control" placeholder="ej. mi-sitio.grid.lab" />
+      <button id="btnAccept" class="btn btn-accept">Aceptar</button>
+    </div>
+
+    <!-- Contenido web (subida comprimida) -->
+    <div class="form-row">
+      <label for="zipfile">Contenido web (comprimido)</label>
+      <input id="zipfile" type="file" accept=".zip" class="form-control" />
+      <button id="btnPublish" class="btn btn-publish">Publicar</button>
+    </div>
+
+    <!-- Mensajes -->
+    <div id="messages" style="margin-top:18px;color:#0b3a66;font-weight:500"></div>
+  </div>
+
+  <!-- Registro de actividad -->
+<div class="card-panel mt-4" style="padding:12px 18px;">
+  <h3 style="font-size:1.05rem;margin-bottom:12px;color:#133b5a;">Registro de actividad</h3>
+
+  <div class="table-responsive">
+    <table id="activityTable" class="table" style="min-width:820px; border-collapse:separate; border-spacing:0 6px;">
+      <thead>
+        <tr style="background:#fff;">
+          <th>Link de acceso</th>
+          <th>Dirección IP</th>
+          <th>Nombre de host</th>
+          <th>Fecha de creación</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="activityBody">
+        <!-- filas generadas dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="index.js"></script>
+  <script src="registros.js"></script>
+</body>
+</html>
