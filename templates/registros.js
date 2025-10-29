@@ -1,5 +1,5 @@
 /* -------- CONFIG ------- */
-const JSON_URL = '../services/hosts.json';
+const JSON_URL = '/instances';
 const POLL_INTERVAL_MS = 3000;
 
 /* -------- RENDER ------- */

@@ -21,7 +21,7 @@ const btnAccept = document.getElementById('btnAccept');
       messages.textContent = `Host "${h}" aceptado. Listo para publicar.`;
     });
 
-    btnPublish.addEventListener('click', () => {
+    btnPublish.addEventListener('click', async () => {
       if(!hostname.value.trim()) {
         messages.style.color = '#b02a37';
         messages.textContent = 'Primero ingresa el nombre de host y pulsa Aceptar.';
@@ -38,10 +38,24 @@ const btnAccept = document.getElementById('btnAccept');
         messages.textContent = 'El archivo debe ser .zip';
         return;
       }
-      // Simulación de subida / despliegue
-      messages.style.color = '#0b8a57';
-      messages.textContent = `Subiendo "${file.name}" y desplegando en ${hostname.value} ... (simulado)`;
-      setTimeout(() => {
-        messages.textContent = `¡Publicado! Accede a: http://${hostname.value}/`;
-      }, 1200);
+      // Llamar backend /provision
+      try {
+        const form = new FormData();
+        form.append('hostname', hostname.value.trim());
+        form.append('file', file, file.name);
+        messages.style.color = '#0b3a66';
+        messages.textContent = `Enviando solicitud de aprovisionamiento para ${hostname.value}...`;
+
+        const res = await fetch('/provision', {
+          method: 'POST',
+          body: form
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        messages.style.color = '#0b8a57';
+        messages.textContent = `Solicitud aceptada. ID: ${data.id}. Seguimiento en el registro.`;
+      } catch (err) {
+        messages.style.color = '#b02a37';
+        messages.textContent = 'Error enviando solicitud: ' + err.message;
+      }
     });
