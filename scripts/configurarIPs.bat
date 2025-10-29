@@ -2,7 +2,7 @@
 REM ================================================================================
 REM  Script: configurarIPsDB.bat
 REM ================================================================================
-REM Descripcion: Configura IPs fijas para VMs de base de datos en la red Host-Only 
+REM Descripcion: Configura IPs fijas para VMs de servidores web en la red Host-Only 
 REM              de VirtualBox mediante reservas DHCP.
 REM              Especializado para instancias del sistema DBaaS.
 REM
@@ -10,7 +10,7 @@ REM Uso:
 REM   %~n0 "VM1" "IP1" "VM2" "IP2" [...]
 REM
 REM Parametros:
-REM   VM1, VM2, ...  Nombres de las VMs de base de datos [REQ]
+REM   VM1, VM2, ...  Nombres de las VMs de servidores web [REQ]
 REM   IP1, IP2, ...  Direcciones IP a asignar (formato: xxx.xxx.xxx.xxx) [REQ]
 REM
 REM Ejemplos:
@@ -25,7 +25,7 @@ REM Configurar directorio de scripts
 set "SCRIPT_DIR=%~dp0"
 
 echo ================================================================================
-echo      CONFIGURAR IPs FIJAS PARA INSTANCIAS DE BASE DE DATOS
+echo      CONFIGURAR IPs FIJAS PARA INSTANCIAS DE SERVIDORES WEB
 echo ================================================================================
 echo.
 
@@ -61,7 +61,7 @@ if "%~1"=="" goto END
 REM Almacenar nombre de VM e IP
 echo Procesando: %~1 - %~2
 
-REM Validar formato de IP para base de datos
+REM Validar formato de IP para servidores web
 call "!SCRIPT_DIR!validate_ip.bat" "%~2" "VM %~1"
 if errorlevel 1 exit /b 1
 
@@ -78,13 +78,13 @@ goto LOOP
 REM Calcular total de VMs procesadas
 set /a TOTAL=%IDX%-1
 echo.
-echo [INFO] Total VMs de base de datos a configurar: %TOTAL%
+echo [INFO] Total VMs de servidor web a configurar: %TOTAL%
 echo.
 
 REM ================================================================================
 REM SECCION 2: CONFIGURACION DE RESERVAS DHCP
 REM ================================================================================
-echo [INFO] Configurando reservas DHCP para instancias de base de datos...
+echo [INFO] Configurando reservas DHCP para instancias de servidores web...
 
 REM Iterar sobre cada VM y configurar su IP fija
 for /L %%i in (1,1,%TOTAL%) do (
@@ -129,15 +129,15 @@ if errorlevel 0 (
 
 echo.
 echo ================================================================================
-echo      CONFIGURACION DE BASE DE DATOS COMPLETADA
+echo      CONFIGURACION DE SERVIDOR WEB COMPLETADA
 echo ================================================================================
 echo.
-echo [RESUMEN] Se configuraron %TOTAL% VM(s) de base de datos con IPs fijas.
+echo [RESUMEN] Se configuraron %TOTAL% VM(s) de servidores web con IPs fijas.
 echo.
 echo [IMPORTANTE] Las VMs deben reiniciarse para obtener las nuevas IPs.
 echo.
 echo [SIGUIENTE PASO]
-echo   Las instancias de base de datos estan listas para ser utilizadas.
+echo   Las instancias de servidores web estan listas para ser utilizadas.
 echo   Registra las IPs asignadas en tu sistema de gestion DBaaS.
 echo.
 exit /b 0

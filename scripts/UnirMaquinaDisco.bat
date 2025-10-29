@@ -6,7 +6,7 @@ REM  Script: UnirMaquinaDiscoDB.bat
 REM ================================================================================
 REM  Descripcion:
 REM    Adjunta un disco virtual tipo multiattach MariaDB a una VM de VirtualBox.
-REM    Especializado para instancias de base de datos del sistema DBaaS.
+REM    Especializado para instancias de servidores web del sistema DBaaS.
 REM
 REM  Uso:
 REM    %~n0 "disco-mariadb.vdi" "nombre-vm" "controlador"
@@ -477,7 +477,7 @@ echo.
 echo DESCRIPCION:
 echo   Este script adjunta un disco virtual MariaDB tipo multiattach a una 
 echo   maquina virtual de VirtualBox con validaciones exhaustivas.
-echo   Especializado para el sistema DBaaS (Database as a Service).
+echo   Especializado para el sistema DBaaS (Web as a Service).
 echo.
 echo USO:
 echo   %~n0 "disco-mariadb" "vm" "controlador"

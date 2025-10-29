@@ -2,7 +2,7 @@
 REM ================================================================================
 REM SCRIPT: validate_ip.bat
 REM ================================================================================
-REM Funcion simple para validar IPs de base de datos
+REM Funcion simple para validar IPs de servidores web
 REM Uso: call validate_ip.bat "192.168.56.21" "servidor"
 REM Retorna: exit code 0 si es valida, 1 si es invalida
 REM ================================================================================
@@ -37,23 +37,23 @@ if !DOT_COUNT! NEQ 3 (
     exit /b 1
 )
 
-REM Validar que el ultimo octeto este en rango valido para base de datos (20-50)
+REM Validar que el ultimo octeto este en rango valido para servidores web (20-50)
 for /f "tokens=4 delims=." %%a in ("!IP_TO_VALIDATE!") do set "LAST_OCTET=%%a"
 if !LAST_OCTET! LSS 1 (
-    echo ERROR: IP invalida para !CONTEXT!. El ultimo octeto debe estar entre 20 y 50 para instancias de base de datos
+    echo ERROR: IP invalida para !CONTEXT!. El ultimo octeto debe estar entre 20 y 50 para instancias de servidores web
     echo IP recibida: !IP_TO_VALIDATE!
     echo Rango recomendado: 192.168.56.20 - 192.168.56.50
     endlocal
     exit /b 1
 )
 if !LAST_OCTET! GTR 255 (
-    echo ERROR: IP invalida para !CONTEXT!. El ultimo octeto debe estar entre 20 y 50 para instancias de base de datos
+    echo ERROR: IP invalida para !CONTEXT!. El ultimo octeto debe estar entre 20 y 50 para instancias de servidores web
     echo IP recibida: !IP_TO_VALIDATE!
     echo Rango recomendado: 192.168.56.20 - 192.168.56.50
     endlocal
     exit /b 1
 )
 
-echo   OK: IP de !CONTEXT! valida para base de datos (!IP_TO_VALIDATE!)
+echo   OK: IP de !CONTEXT! valida para servidores web (!IP_TO_VALIDATE!)
 endlocal
 exit /b 0

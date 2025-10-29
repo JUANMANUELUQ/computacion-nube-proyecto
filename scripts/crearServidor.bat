@@ -64,12 +64,24 @@ VBoxManage modifyvm "!VM_NAME!" --memory 1024 --cpus 1 --vram 32 --boot1 disk --
 
 echo   Inicializando para obtener MAC...
 VBoxManage startvm "!VM_NAME!" --type headless || exit /b 3
-timeout /t 10 /nobreak >nul
+powershell -NoProfile -Command "Start-Sleep -Seconds 10"
 VBoxManage controlvm "!VM_NAME!" poweroff
-timeout /t 5 /nobreak >nul
+powershell -NoProfile -Command "Start-Sleep -Seconds 5"
+
+REM Asegurar que la VM existe y esta registrada antes de continuar
+:wait_registered
+VBoxManage showvminfo "!VM_NAME!" >nul 2>&1
+if errorlevel 1 (
+  echo   Esperando registro de VM en VirtualBox...
+  powershell -NoProfile -Command "Start-Sleep -Seconds 2"
+  goto wait_registered
+)
 
 REM ===================== 3) ADJUNTAR DISCO Y RESERVAR IP =====================
 echo [2/5] Adjuntando disco plantilla Apache...
+REM Crear controlador de almacenamiento SATA si no existe (VM nueva no lo trae)
+VBoxManage storagectl "!VM_NAME!" --name "!CONTROLADOR!" --add sata --controller IntelAhci --portcount 4 >nul 2>&1
+REM ignorar error si ya existia
 call "!SCRIPT_DIR!UnirMaquinaDisco.bat" "!APACHE_DISK!" "!VM_NAME!" "!CONTROLADOR!" || (
   echo ERROR: No se pudo adjuntar el disco.
   exit /b 4
