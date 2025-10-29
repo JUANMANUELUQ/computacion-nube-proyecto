@@ -1,0 +1,11 @@
+//Comandos para instalarlo
+sudo apt update
+sudo apt install -y bind9 bind9utils bind9-doc dnsutils
+sudo systemctl enable --now bind9
+sudo systemctl status bind9
+
+//Archivos de configuración principales
+/etc/bind/named.conf (incluye los demás)
+/etc/bind/named.conf.options → opciones globales
+/etc/bind/named.conf.local → zonas locales que añadiremos
+/etc/bind/db.*
