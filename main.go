@@ -25,13 +25,8 @@ type Instance struct {
 var (
 	instancesPath = filepath.FromSlash("./services/hosts.json")
 	scriptsDir    = filepath.FromSlash("./scripts")
-	diskPath      = filepath.FromSlash("C:/Users/mirao/VirtualBox VMs/Discos/APACHE PLANTILLA.vdi")
 	dnsServerIP   = "192.168.56.11"
 	dnsZone       = "grid.lab"
-	dnsRevZone    = "56.168.192.in-addr.arpa"
-	tsigKeyName   = "ddns-key"
-	tsigSecret    = "hZ/c3VtNSShEc99TepE588evLVrsODotHd9rtLzO1iE="
-	sshUser       = "unix"
 )
 
 var mu sync.Mutex
@@ -86,43 +81,6 @@ func nextIP(used []string) (string, error) {
 	return "", errors.New("sin IP disponible en 192.168.56.12-254")
 }
 
-func ensureProvisionScript() (string, error) {
-	bat := filepath.Join(scriptsDir, "provision_apache.bat")
-	if _, err := os.Stat(bat); err == nil {
-		return bat, nil
-	}
-	if err := os.MkdirAll(scriptsDir, 0755); err != nil {
-		return "", err
-	}
-	content := `@echo off
-setlocal enabledelayedexpansion
-set "VM_NAME=%~1"
-set "SERVER_IP=%~2"
-set "APACHE_DISK=%~3"
-if "!VM_NAME!"=="" exit /b 1
-if "!SERVER_IP!"=="" exit /b 1
-if "!APACHE_DISK!"=="" exit /b 1
-REM crear VM basica Debian_64
-VBoxManage createvm --name "!VM_NAME!" --ostype "Debian_64" --register
-VBoxManage modifyvm "!VM_NAME!" --memory 1024 --cpus 1 --nic1 hostonly --hostonlyadapter1 "VirtualBox Host-Only Ethernet Adapter" --nic2 nat
-REM iniciar y apagar para generar MAC
-VBoxManage startvm "!VM_NAME!" --type headless
-timeout /t 10 /nobreak >nul
-VBoxManage controlvm "!VM_NAME!" poweroff
-timeout /t 5 /nobreak >nul
-REM adjuntar disco plantilla Apache
-call "%~dp0UnirMaquinaDisco.bat" "!APACHE_DISK!" "!VM_NAME!" "SATA"
-if errorlevel 1 exit /b 2
-REM reservar IP por MAC via script existente
-call "%~dp0configurarIPs.bat" "!VM_NAME!" "!SERVER_IP!"
-if errorlevel 1 exit /b 3
-REM encender VM
-VBoxManage startvm "!VM_NAME!" --type headless
-exit /b 0
-`
-	return bat, os.WriteFile(bat, []byte(content), 0644)
-}
-
 func run(_ string, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
@@ -130,43 +88,10 @@ func run(_ string, name string, args ...string) error {
 	return cmd.Run()
 }
 
-func scpTo(ip, local, remote string) error {
-	return run("scp", "scp", local, fmt.Sprintf("%s@%s:%s", sshUser, ip, remote))
-}
+// removed obsolete helper functions (scp/ssh/nsupdate/provisionWorker) now handled in scripts
 
-func sshRun(ip string, remoteCmd string) error {
-	return run("ssh", "ssh", fmt.Sprintf("%s@%s", sshUser, ip), remoteCmd)
-}
-
-func nsupdateAdd(host, ip string) error {
-	lines := []string{
-		fmt.Sprintf("server %s", dnsServerIP),
-		fmt.Sprintf("zone %s", dnsZone),
-		fmt.Sprintf("update delete %s A", host),
-		fmt.Sprintf("update add %s 300 A %s", host, ip),
-		"send",
-		fmt.Sprintf("zone %s", dnsRevZone),
-		fmt.Sprintf("update delete %s PTR", revPtr(ip)),
-		fmt.Sprintf("update add %s 300 PTR %s.", revPtr(ip), host+"."),
-		"send",
-	}
-	tmp := filepath.Join(os.TempDir(), "nsupdate.txt")
-	if err := os.WriteFile(tmp, []byte(strings.Join(lines, "\n")), 0600); err != nil {
-		return err
-	}
-	defer os.Remove(tmp)
-	return run("nsupdate", "nsupdate", "-y", fmt.Sprintf("hmac-sha256:%s:%s", tsigKeyName, tsigSecret), "-v", tmp)
-}
-
-func revPtr(ip string) string {
-	parts := strings.Split(ip, ".")
-	if len(parts) != 4 {
-		return ""
-	}
-	return fmt.Sprintf("%s.%s.%s.%s.in-addr.arpa", parts[3], parts[2], parts[1], parts[0])
-}
-
-func provisionWorker(id string, fqdn string, zipPath string) {
+func provisionSync(fqdn string, zipPath string) (Instance, error) {
+	var zero Instance
 	mu.Lock()
 	list, _ := loadInstances()
 	used := make([]string, 0, len(list))
@@ -176,26 +101,47 @@ func provisionWorker(id string, fqdn string, zipPath string) {
 	ip, err := nextIP(used)
 	mu.Unlock()
 	if err != nil {
-		fmt.Println("no ip disponible:", err)
-		return
+		return zero, err
 	}
 
 	vmName := strings.SplitN(fqdn, ".", 2)[0]
-
-	// Usar el script crearServidor.bat existente para VM + IP + hostname + deploy
 	crearScript := filepath.Join(scriptsDir, "crearServidor.bat")
 	if err := run("provision", crearScript, vmName, ip, fqdn, zipPath); err != nil {
-		fmt.Println("error crearServidor.bat:", err)
-		return
+		return zero, fmt.Errorf("provision fallo: %w", err)
 	}
-	_ = nsupdateAdd(fqdn, ip)
+	// DNS ya se aplica dentro del script crearServidor.bat; aquí solo validamos.
+	if err := run("nslookupA", "nslookup", fqdn, dnsServerIP); err != nil {
+		return zero, fmt.Errorf("DNS A no disponible para %s", fqdn)
+	}
+	// Validación de PTR opcional: si falla, no bloquea
+	_ = run("nslookupPTR", "nslookup", ip, dnsServerIP)
+    client := &http.Client{Timeout: 10 * time.Second}
+    // Intentar por FQDN primero
+    resp, err := client.Get("http://" + fqdn + "/health.txt")
+    if err != nil || resp.StatusCode < 200 || resp.StatusCode >= 300 {
+        if resp != nil { resp.Body.Close() }
+        // Fallback: por IP con Host header para que coincida el VirtualHost
+        req, _ := http.NewRequest("GET", "http://"+ip+"/health.txt", nil)
+        req.Host = fqdn
+        resp2, err2 := client.Do(req)
+        if err2 != nil {
+            return zero, fmt.Errorf("servicio web no responde en %s", ip)
+        }
+        defer resp2.Body.Close()
+        if resp2.StatusCode < 200 || resp2.StatusCode >= 300 {
+            return zero, fmt.Errorf("servicio web HTTP %d en %s", resp2.StatusCode, ip)
+        }
+    } else {
+        defer resp.Body.Close()
+    }
 
+	inst := Instance{ID: fmt.Sprintf("job-%d", time.Now().UnixNano()), URL: "http://" + fqdn, IP: ip, Host: fqdn, CreatedAt: time.Now().UTC().Format(time.RFC3339)}
 	mu.Lock()
 	list, _ = loadInstances()
-	inst := Instance{ID: id, URL: "http://" + fqdn, IP: ip, Host: fqdn, CreatedAt: time.Now().UTC().Format(time.RFC3339)}
 	list = append(list, inst)
 	_ = saveInstances(list)
 	mu.Unlock()
+	return inst, nil
 }
 
 func handleProvision(w http.ResponseWriter, r *http.Request) {
@@ -209,7 +155,11 @@ func handleProvision(w http.ResponseWriter, r *http.Request) {
 	}
 	fqdn := strings.TrimSpace(r.FormValue("hostname"))
 	if fqdn == "" {
-		fqdn = fmt.Sprintf("app-%d.grid.lab", time.Now().Unix())
+		fqdn = fmt.Sprintf("app-%d.%s", time.Now().Unix(), dnsZone)
+	}
+	// Normalizar: si no es FQDN, agregar zona
+	if !strings.Contains(fqdn, ".") {
+		fqdn = fqdn + "." + dnsZone
 	}
 	file, header, err := r.FormFile("file")
 	if err != nil {
@@ -228,12 +178,15 @@ func handleProvision(w http.ResponseWriter, r *http.Request) {
 	io.Copy(out, file)
 	out.Close()
 
-	id := fmt.Sprintf("job-%d", time.Now().UnixNano())
-	go provisionWorker(id, fqdn, tmpZip)
-
+	inst, err := provisionSync(fqdn, tmpZip)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadGateway)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(map[string]string{"id": id})
+	json.NewEncoder(w).Encode(inst)
 }
 
 func handleInstances(w http.ResponseWriter, r *http.Request) {

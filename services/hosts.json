@@ -14,10 +14,10 @@
     "created_at": "2025-10-22T17:06:12Z"
   },
   {
-    "id": "job-1761772600808902700",
-    "url": "http://sample",
+    "id": "job-1761795697517355400",
+    "url": "http://sample.grid.lab",
     "ip": "192.168.56.12",
-    "host": "sample",
-    "created_at": "2025-10-29T21:17:43Z"
+    "host": "sample.grid.lab",
+    "created_at": "2025-10-30T03:41:37Z"
   }
 ]

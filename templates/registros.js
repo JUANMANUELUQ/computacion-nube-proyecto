@@ -1,5 +1,6 @@
 /* -------- CONFIG ------- */
 const JSON_URL = '/instances';
+const DEFAULT_ZONE = 'grid.lab';
 const POLL_INTERVAL_MS = 3000;
 
 /* -------- RENDER ------- */
@@ -7,6 +8,14 @@ function formatDate(iso) {
   if(!iso) return '';
   const d = new Date(iso);
   return d.toLocaleString(); // puedes customizar
+}
+
+function canonicalUrl(item) {
+  // Preferimos item.url si ya es completa, pero si no, la construimos
+  if (item && typeof item.url === 'string' && item.url.startsWith('http')) return item.url;
+  const host = (item && item.host) ? item.host : '';
+  const fqdn = host.indexOf('.') === -1 && host ? `${host}.${DEFAULT_ZONE}` : host;
+  return fqdn ? `http://${fqdn}` : '';
 }
 
 function createRow(item) {
@@ -17,8 +26,9 @@ function createRow(item) {
   const tdLink = document.createElement('td');
   tdLink.className = 'activity-cell';
   const a = document.createElement('a');
-  a.href = item.url;
-  a.textContent = item.url;
+  const link = canonicalUrl(item);
+  a.href = link || '#';
+  a.textContent = link || (item.url || '');
   a.className = 'activity-link';
   a.target = '_blank';
   tdLink.appendChild(a);

@@ -39,6 +39,12 @@ set "APACHE_DISK=C:\Users\mirao\VirtualBox VMs\Discos\APACHE PLANTILLA.vdi"
 set "CONTROLADOR=SATA"
 set "SSH_PORT=22"
 set "BOOT_WAIT=25"
+set "DNS_SERVER=192.168.56.11"
+set "DNS_ZONE=grid.lab"
+set "DNS_REV_ZONE=56.168.192.in-addr.arpa"
+set "TSIG_ALG=hmac-sha256"
+set "TSIG_NAME=ddns-key"
+set "TSIG_SECRET=hZ/c3VtNSShEc99TepE588evLVrsODotHd9rtLzO1iE="
 
 if "!SERVER_IP!"=="" (
   echo ERROR: IP requerida.
@@ -109,10 +115,18 @@ if not "!ZIP_PATH!"=="" (
     echo   Transfiriendo ZIP y desplegando...
     scp -P !SSH_PORT! -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "!ZIP_PATH!" !SSH_USER!@!SERVER_IP!:"/tmp/site.zip" 2>nul
     ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p !SSH_PORT! !SSH_USER!@!SERVER_IP! "sudo /usr/local/bin/deploy_web.sh /tmp/site.zip !FQDN!" 2>nul
+    echo   Aplicando reload de Apache...
+    REM Hacer que el VirtualHost de !FQDN! sea el "default" (000-*)
+    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p !SSH_PORT! !SSH_USER!@!SERVER_IP! "sudo a2dissite 000-default.conf >/dev/null 2>&1; sudo a2dissite '!FQDN!.conf' >/dev/null 2>&1; if [ -f '/etc/apache2/sites-available/!FQDN!.conf' ]; then sudo cp '/etc/apache2/sites-available/!FQDN!.conf' '/etc/apache2/sites-available/000-!FQDN!.conf'; fi; sudo a2ensite '000-!FQDN!.conf'; (sudo apache2ctl configtest && sudo systemctl reload apache2) || sudo systemctl restart apache2" 2>nul
+    echo   Verificando health en la VM...
+    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p !SSH_PORT! !SSH_USER!@!SERVER_IP! "curl -s -H 'Host: !FQDN!' http://127.0.0.1/health.txt || true" 2>nul
   ) else (
     echo   ADVERTENCIA: ZIP no encontrado: !ZIP_PATH!
   )
 )
+
+REM ===================== 4.1) ACTUALIZAR DNS (A y PTR) =====================
+if not "!FQDN!"=="" call :UPDATE_DNS "!FQDN!" "!SERVER_IP!"
 
 REM ===================== 5) RESUMEN =====================
 echo.
@@ -134,4 +148,41 @@ REM 2  VM ya existe
 REM 3  Error creando/arrancando VM
 REM 4  Error adjuntando disco
 REM 5  Error reservando IP
+
+REM ===================== SUBRUTINA: UPDATE_DNS =====================
+:UPDATE_DNS
+setlocal enabledelayedexpansion
+set "FQ=%~1"
+set "IP=%~2"
+echo [4.1/5] Actualizando DNS (A y PTR) en !DNS_SERVER! ...
+for /f "tokens=4 delims=." %%o in ("!IP!") do set "LAST_OCTET=%%o"
+set "FQ_ABS=!FQ!."
+set "PTR_NAME=!LAST_OCTET!.56.168.192.in-addr.arpa."
+
+set "NSFILE=%TEMP%\nsupdate_!RANDOM!.txt"
+>"!NSFILE!" echo server !DNS_SERVER!
+>>"!NSFILE!" echo zone !DNS_ZONE!
+>>"!NSFILE!" echo update delete !FQ_ABS! A
+>>"!NSFILE!" echo update add !FQ_ABS! 300 A !IP!
+>>"!NSFILE!" echo send
+>>"!NSFILE!" echo zone !DNS_REV_ZONE!
+>>"!NSFILE!" echo update delete !PTR_NAME! PTR
+>>"!NSFILE!" echo update add !PTR_NAME! 300 PTR !FQ_ABS!
+>>"!NSFILE!" echo send
+
+scp -P !SSH_PORT! -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "!NSFILE!" !SSH_USER!@!DNS_SERVER!:"/tmp/nsupd.txt" 2>nul
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p !SSH_PORT! !SSH_USER!@!DNS_SERVER! "nsupdate -v -y !TSIG_ALG!:!TSIG_NAME!:!TSIG_SECRET! /tmp/nsupd.txt && rm -f /tmp/nsupd.txt" 
+
+del /f /q "!NSFILE!" >nul 2>&1
+
+set "DNS_OK=0"
+nslookup !FQ! !DNS_SERVER! | find "!IP!" >nul
+if not errorlevel 1 set "DNS_OK=1"
+if "!DNS_OK!"=="1" (
+  echo   OK: DNS aplicado para !FQ! -> !IP!
+) else (
+  echo   ERROR: DNS no aplicado para !FQ! en !DNS_SERVER!.
+  endlocal & exit /b 6
+)
+endlocal & exit /b 0
 
