@@ -76,7 +76,7 @@ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeou
 del /f /q "%NSFILE%" >nul 2>&1
 nslookup %FQDN% %DNS_SERVER% | find "%SERVER_IP%" >nul || (echo ERROR: DNS no aplicado.& exit /b 6)
 
-echo OK: Preparación completada para %FQDN% (%SERVER_IP%)
+echo OK: Preparacion completada para %FQDN% (%SERVER_IP%)
 exit /b 0
 
 
