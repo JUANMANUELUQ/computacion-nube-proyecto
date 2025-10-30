@@ -12,12 +12,5 @@
     "ip": "192.168.10.12/24",
     "host": "negocios",
     "created_at": "2025-10-22T17:06:12Z"
-  },
-  {
-    "id": "job-1761795697517355400",
-    "url": "http://sample.grid.lab",
-    "ip": "192.168.56.12",
-    "host": "sample.grid.lab",
-    "created_at": "2025-10-30T03:41:37Z"
   }
 ]

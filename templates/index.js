@@ -4,7 +4,7 @@ const btnAccept = document.getElementById('btnAccept');
     const zipfile = document.getElementById('zipfile');
     const messages = document.getElementById('messages');
 
-    btnAccept.addEventListener('click', () => {
+    btnAccept.addEventListener('click', async () => {
       const h = hostname.value.trim();
       if(!h) {
         messages.textContent = 'Por favor ingresa un nombre de host.';
@@ -17,8 +17,20 @@ const btnAccept = document.getElementById('btnAccept');
         messages.style.color = '#b02a37';
         return;
       }
-      messages.style.color = '#0b8a57';
-      messages.textContent = `Host "${h}" aceptado. Listo para publicar.`;
+      try {
+        const form = new FormData();
+        form.append('hostname', h);
+        messages.style.color = '#0b3a66';
+        messages.textContent = `Preparando VM y DNS para ${h}...`;
+        const res = await fetch('/prepare', { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || ('HTTP '+res.status));
+        messages.style.color = '#0b8a57';
+        messages.textContent = `Preparación completa. IP: ${data.ip}. Ahora sube el ZIP y pulsa Publicar.`;
+      } catch (e) {
+        messages.style.color = '#b02a37';
+        messages.textContent = 'Error en preparación: ' + e.message;
+      }
     });
 
     btnPublish.addEventListener('click', async () => {
@@ -46,14 +58,14 @@ const btnAccept = document.getElementById('btnAccept');
         messages.style.color = '#0b3a66';
         messages.textContent = `Enviando solicitud de aprovisionamiento para ${hostname.value}...`;
 
-        const res = await fetch('/provision', {
+        const res = await fetch('/publish', {
           method: 'POST',
           body: form
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         messages.style.color = '#0b8a57';
-        messages.textContent = `Solicitud aceptada. ID: ${data.id}. Seguimiento en el registro.`;
+        messages.textContent = `Sitio publicado: ${data.url}.`;
       } catch (err) {
         messages.style.color = '#b02a37';
         messages.textContent = 'Error enviando solicitud: ' + err.message;

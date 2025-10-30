@@ -57,8 +57,8 @@ function createRow(item) {
   btn.onclick = (ev) => {
     ev.preventDefault();
     if (!confirm('¿Eliminar esta instancia?')) return;
-    // Llamada DELETE a API (si existe). Si no, simular actualizando localmente.
-    fetch(`/api/instances/${encodeURIComponent(item.id)}`, { method: 'DELETE' })
+    // Llamada DELETE al backend
+    fetch(`/destroy/${encodeURIComponent(item.id)}`, { method: 'DELETE' })
       .then(r => {
         if (r.ok) {
           // forzar recarga inmediata
