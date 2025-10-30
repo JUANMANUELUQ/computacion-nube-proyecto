@@ -1,0 +1,9 @@
+body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:#fafafa;color:#222}
+.topbar{background:#111827;color:#fff;padding:16px 20px;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:20px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;box-shadow:0 4px 10px rgba(0,0,0,.03)}
+h3{margin-top:0}
+footer{text-align:center;padding:12px}
+footer a{color:#2563eb}
+
+
