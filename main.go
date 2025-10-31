@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -25,15 +26,24 @@ type Instance struct {
 	CreatedAt string `json:"created_at"`
 }
 
+type DNSLog struct {
+	Timestamp string `json:"timestamp"`
+	Action    string `json:"action"` // "ADD" o "DELETE"
+	FQDN      string `json:"fqdn"`
+	IP        string `json:"ip"`
+}
+
 // ============================== Config ======================================
 var (
 	instancesPath = filepath.FromSlash("./services/hosts.json")
+	dnsLogsPath   = filepath.FromSlash("./services/dns-logs.json")
 	scriptsDir    = filepath.FromSlash("./scripts")
 	dnsServerIP   = "192.168.56.11"
 	dnsZone       = "grid.lab"
 )
 
 var mu sync.Mutex
+var muLogs sync.Mutex
 
 // ============================== Storage =====================================
 func loadInstances() ([]Instance, error) {
@@ -67,6 +77,60 @@ func saveInstances(list []Instance) error {
 	}
 	f.Close()
 	return os.Rename(tmp, instancesPath)
+}
+
+// ============================== DNS Logs Storage ============================
+func loadDNSLogs() ([]DNSLog, error) {
+	muLogs.Lock()
+	defer muLogs.Unlock()
+	f, err := os.Open(dnsLogsPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []DNSLog{}, nil
+		}
+		return nil, err
+	}
+	defer f.Close()
+	var logs []DNSLog
+	dec := json.NewDecoder(f)
+	if err := dec.Decode(&logs); err != nil {
+		return []DNSLog{}, nil
+	}
+	return logs, nil
+}
+
+func saveDNSLogs(logs []DNSLog) error {
+	muLogs.Lock()
+	defer muLogs.Unlock()
+	tmp := dnsLogsPath + ".tmp"
+	f, err := os.Create(tmp)
+	if err != nil {
+		return err
+	}
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(logs); err != nil {
+		f.Close()
+		return err
+	}
+	f.Close()
+	return os.Rename(tmp, dnsLogsPath)
+}
+
+func addDNSLog(action, fqdn, ip string) {
+	logs, _ := loadDNSLogs()
+	newLog := DNSLog{
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Action:    action,
+		FQDN:      fqdn,
+		IP:        ip,
+	}
+	logs = append(logs, newLog)
+	// Mantener solo los últimos 100 logs
+	if len(logs) > 100 {
+		logs = logs[len(logs)-100:]
+	}
+	_ = saveDNSLogs(logs)
 }
 
 // ============================== Utilities ===================================
@@ -130,6 +194,8 @@ func prepareSync(fqdn string) (string, string, error) {
 	if err := run("nslookupA", "nslookup", fqdn, dnsServerIP); err != nil {
 		return "", "", fmt.Errorf("DNS A no disponible para %s", fqdn)
 	}
+	// Registrar log de DNS agregado (solo registro A directo)
+	addDNSLog("ADD", fqdn, ip)
 	return ip, vmName, nil
 }
 
@@ -260,6 +326,122 @@ func handleInstances(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(list)
 }
 
+func handleDNSLogs(w http.ResponseWriter, r *http.Request) {
+	logs, _ := loadDNSLogs()
+	// Ordenar por timestamp descendente (más recientes primero)
+	sort.Slice(logs, func(i, j int) bool {
+		return logs[i].Timestamp > logs[j].Timestamp
+	})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(logs)
+}
+
+// ============================== DNS Direct (read zone file) =================
+type DNSDirectRecord struct {
+	FQDN string `json:"fqdn"`
+	IP   string `json:"ip"`
+}
+
+func readDNSZoneRaw() (string, error) {
+	// Intenta volcar el estado actual desde named en /var/cache/bind/named_dump.db
+	// Fallback: leer directamente el archivo de zona si dumpdb falla
+	sshUser := "unix"
+	remoteCmd := "sudo rndc dumpdb -zones >/dev/null 2>&1 && sudo cat /var/cache/bind/named_dump.db || sudo cat /var/lib/bind/db.grid.lab"
+	args := []string{
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "BatchMode=yes",
+		"-o", "ConnectTimeout=8",
+		sshUser + "@" + dnsServerIP,
+		remoteCmd,
+	}
+	cmd := exec.Command("ssh", args...)
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
+}
+
+func parseDirectARecords(zoneContent string) []DNSDirectRecord {
+	lines := strings.Split(zoneContent, "\n")
+	var out []DNSDirectRecord
+	for _, ln := range lines {
+		s := strings.TrimSpace(ln)
+		if s == "" || strings.HasPrefix(s, ";") || strings.HasPrefix(strings.ToUpper(s), "$TTL") {
+			continue
+		}
+		if strings.Contains(strings.ToLower(s), "in-addr.arpa") {
+			continue
+		}
+		f := strings.Fields(s)
+		ai := -1
+		for i := 0; i < len(f); i++ {
+			if strings.ToUpper(f[i]) == "A" {
+				ai = i
+				break
+			}
+		}
+		if ai == -1 || ai+1 >= len(f) {
+			continue
+		}
+		// owner es el primer token no numerico y distinto de IN antes de A
+		owner := ""
+		for k := 0; k < ai; k++ {
+			tk := f[k]
+			tku := strings.ToUpper(tk)
+			if tku == "IN" {
+				continue
+			}
+			isNum := true
+			for _, ch := range tk {
+				if ch < '0' || ch > '9' {
+					isNum = false
+					break
+				}
+			}
+			if isNum {
+				continue
+			}
+			owner = tk
+			break
+		}
+		if owner == "" && len(f) > 0 {
+			owner = f[0]
+		}
+		ip := f[ai+1]
+		fqdn := owner
+		if fqdn == "@" {
+			fqdn = dnsZone
+		}
+		if strings.HasSuffix(fqdn, ".") {
+			fqdn = strings.TrimSuffix(fqdn, ".")
+		}
+		if !strings.HasSuffix(fqdn, dnsZone) && !strings.Contains(fqdn, ".") {
+			fqdn = fqdn + "." + dnsZone
+		}
+		if v4 := net.ParseIP(ip).To4(); v4 != nil {
+			out = append(out, DNSDirectRecord{FQDN: fqdn, IP: v4.String()})
+		}
+	}
+	return out
+}
+
+func handleDNSDirect(w http.ResponseWriter, r *http.Request) {
+	txt, err := readDNSZoneRaw()
+	if err != nil {
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		http.Error(w, "no se pudo leer zona DNS: "+err.Error(), http.StatusBadGateway)
+		return
+	}
+	recs := parseDirectARecords(txt)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	json.NewEncoder(w).Encode(recs)
+}
+
 func handleDestroy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "method not allowed", 405)
@@ -297,6 +479,8 @@ func handleDestroy(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error eliminando instancia", 502)
 		return
 	}
+	// Registrar log de DNS eliminado
+	addDNSLog("DELETE", fqdn, ip)
 	// Remover del hosts.json
 	mu.Lock()
 	list, _ = loadInstances()
@@ -315,6 +499,8 @@ func main() {
 	http.HandleFunc("/publish", handlePublish)
 	http.HandleFunc("/instances", handleInstances)
 	http.HandleFunc("/destroy/", handleDestroy)
+	http.HandleFunc("/dns-logs", handleDNSLogs)
+	http.HandleFunc("/dns-direct", handleDNSDirect)
 
 	fmt.Println("Servidor web en http://localhost:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {

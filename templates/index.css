@@ -103,3 +103,23 @@
     box-shadow: 0 2px 0 rgba(0,0,0,0.06);
     }
     .btn-delete:hover { opacity: 0.95; }
+
+    /* Logs DNS */
+    #dnsLogsContainer {
+    scrollbar-width: thin;
+    scrollbar-color: #c7d3ee #f1f6fb;
+    }
+    #dnsLogsContainer::-webkit-scrollbar {
+    width: 8px;
+    }
+    #dnsLogsContainer::-webkit-scrollbar-track {
+    background: #f1f6fb;
+    border-radius: 4px;
+    }
+    #dnsLogsContainer::-webkit-scrollbar-thumb {
+    background: #c7d3ee;
+    border-radius: 4px;
+    }
+    #dnsLogsContainer::-webkit-scrollbar-thumb:hover {
+    background: #8fa9e6;
+    }

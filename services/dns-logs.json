@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2025-10-31T02:03:10Z",
+    "action": "ADD",
+    "fqdn": "hola.grid.lab",
+    "ip": "192.168.56.12"
+  },
+  {
+    "timestamp": "2025-10-31T02:07:59Z",
+    "action": "DELETE",
+    "fqdn": "hola.grid.lab",
+    "ip": "192.168.56.12"
+  }
+]

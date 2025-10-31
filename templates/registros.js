@@ -61,17 +61,21 @@ function createRow(item) {
     fetch(`/destroy/${encodeURIComponent(item.id)}`, { method: 'DELETE' })
       .then(r => {
         if (r.ok) {
-          // forzar recarga inmediata
           loadAndRender(true);
+          loadDNSLogs();
+          if (typeof loadDNSDirect === 'function') loadDNSDirect();
         } else {
-          // si backend no implementado: intentar actualizar local cache forcely
           console.warn('DELETE failed, reloading file');
           loadAndRender(true);
+          loadDNSLogs();
+          if (typeof loadDNSDirect === 'function') loadDNSDirect();
         }
       })
       .catch(err => {
         console.warn('No hay backend DELETE, actualizando vista localmente', err);
         loadAndRender(true);
+        loadDNSLogs();
+        if (typeof loadDNSDirect === 'function') loadDNSDirect();
       });
   };
   tdAction.appendChild(btn);
@@ -133,8 +137,110 @@ async function loadAndRender(force=false) {
   }
 }
 
+/* -------- DNS LOGS ------- */
+function formatTimestamp(iso) {
+  if(!iso) return '';
+  const d = new Date(iso);
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+  return `${d.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
+}
+
+function renderDNSLogs(logs) {
+  const container = document.getElementById('dnsLogsBody');
+  if(!container) return;
+
+  if (!logs || logs.length === 0) {
+    container.innerHTML = '<div style="color:#666;text-align:center;">No hay logs DNS registrados.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  logs.forEach((log) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '6px';
+    div.style.paddingBottom = '6px';
+    div.style.borderBottom = '1px solid #e9e9e9';
+    
+    const actionColor = log.action === 'ADD' ? '#0b8a57' : '#d11a2a';
+    const actionText = log.action === 'ADD' ? 'AGREGADO' : 'ELIMINADO';
+    
+    div.innerHTML = `
+      <span style="color:${actionColor};font-weight:bold;">[${actionText}]</span>
+      <span style="color:#333;">${log.fqdn}</span>
+      <span style="color:#666;">→</span>
+      <span style="color:#1a73e8;">${log.ip}</span>
+      <span style="color:#999;margin-left:12px;font-size:0.8em;">${formatTimestamp(log.timestamp)}</span>
+    `;
+    
+    container.appendChild(div);
+  });
+}
+
+// Función global para cargar logs DNS (disponible para index.js)
+async function loadDNSLogs() {
+  try {
+    const res = await fetch('/dns-logs', {cache: 'no-store'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('Formato JSON inválido.');
+    renderDNSLogs(data);
+  } catch (err) {
+    console.error('Error cargando logs DNS:', err);
+    const container = document.getElementById('dnsLogsBody');
+    if(container) {
+      container.innerHTML = '<div style="color:#d11a2a;text-align:center;">Error cargando logs DNS.</div>';
+    }
+  }
+}
+
+// Hacer la función disponible globalmente (window.loadDNSLogs)
+if (typeof window !== 'undefined') {
+  window.loadDNSLogs = loadDNSLogs;
+}
+
+let dnsLogsTimer = null;
+
 /* -------- START POLLING ------- */
 document.addEventListener('DOMContentLoaded', () => {
   loadAndRender();
   pollTimer = setInterval(loadAndRender, POLL_INTERVAL_MS);
+  
+  // Cargar logs DNS inicialmente y actualizar cada 2 segundos
+  loadDNSLogs();
+  dnsLogsTimer = setInterval(loadDNSLogs, 2000);
+  // Cargar estado DNS directo y actualizar cada 3 segundos
+  loadDNSDirect();
+  setInterval(loadDNSDirect, 3000);
 });
+
+/* -------- DNS DIRECT (desde archivo de zona en la VM) -------- */
+function renderDNSDirect(records) {
+  const container = document.getElementById('dnsDirectBody');
+  if(!container) return;
+  if (!Array.isArray(records) || records.length === 0) {
+    container.innerHTML = '<div style="color:#666;text-align:center;">Sin registros A en zona.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  records.forEach((r) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '4px';
+    div.textContent = `${r.fqdn} → ${r.ip}`;
+    container.appendChild(div);
+  });
+}
+
+async function loadDNSDirect() {
+  try {
+    const res = await fetch('/dns-direct', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderDNSDirect(data);
+  } catch (err) {
+    console.error('Error leyendo DNS directo:', err);
+    const c = document.getElementById('dnsDirectBody');
+    if (c) c.innerHTML = '<div style="color:#d11a2a;text-align:center;">Error leyendo zona en DNS.</div>';
+  }
+}

@@ -32,6 +32,22 @@
     <div id="messages" style="margin-top:18px;color:#0b3a66;font-weight:500"></div>
   </div>
 
+  <!-- Logs DNS -->
+  <div class="card-panel mt-4" style="padding:12px 18px;">
+    <h3 style="font-size:1.05rem;margin-bottom:12px;color:#133b5a;">Logs DNS</h3>
+    <div id="dnsLogsContainer" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid #c7d3ee;border-radius:6px;padding:12px;">
+      <div id="dnsLogsBody" style="font-family:'Courier New',monospace;font-size:0.85rem;">
+        <div style="color:#666;text-align:center;">Cargando logs DNS...</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;color:#133b5a;font-weight:600;">Estado actual DNS (directo)</div>
+    <div id="dnsDirectContainer" style="max-height:180px;overflow-y:auto;background:#fff;border:1px solid #c7d3ee;border-radius:6px;padding:12px;margin-top:6px;">
+      <div id="dnsDirectBody" style="font-family:'Courier New',monospace;font-size:0.85rem;">
+        <div style="color:#666;text-align:center;">Leyendo zona desde el DNS...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Registro de actividad -->
 <div class="card-panel mt-4" style="padding:12px 18px;">
   <h3 style="font-size:1.05rem;margin-bottom:12px;color:#133b5a;">Registro de actividad</h3>

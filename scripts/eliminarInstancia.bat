@@ -59,6 +59,13 @@ set "NSFILE=%TEMP%\nsupdate_del_%RANDOM%.txt"
 scp -P %SSH_PORT% -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "%NSFILE%" %SSH_USER%@%DNS_SERVER%:"/tmp/nsupd_del.txt" 2>nul
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p %SSH_PORT% %SSH_USER%@%DNS_SERVER% "nsupdate -v -y %TSIG_ALG%:%TSIG_NAME%:%TSIG_SECRET% /tmp/nsupd_del.txt && rm -f /tmp/nsupd_del.txt" 2>nul
 del /f /q "%NSFILE%" >nul 2>&1
+REM Forzar sincronizacion de zona a disco para reflejar cambios inmediatamente
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p %SSH_PORT% %SSH_USER%@%DNS_SERVER% "sudo rndc sync -clean %DNS_ZONE% >/dev/null 2>&1 && sudo rndc sync -clean %DNS_REV_ZONE% >/dev/null 2>&1" 2>nul
+
+REM === Snapshot de zona directa (solo registros A) para verificacion ===
+echo ---DNS_DIRECT_BEGIN---
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -p %SSH_PORT% %SSH_USER%@%DNS_SERVER% "sudo awk 'BEGIN{IGNORECASE=1} $0 !~ /^;/ && $0 ~ /[[:space:]]A[[:space:]]/ {print}' /var/lib/bind/db.grid.lab" 2>nul
+echo ---DNS_DIRECT_END---
 
 echo OK: Instancia eliminada (%VM_NAME%, %SERVER_IP%, %FQDN%)
 exit /b 0

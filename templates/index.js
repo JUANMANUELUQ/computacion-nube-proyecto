@@ -27,6 +27,10 @@ const btnAccept = document.getElementById('btnAccept');
         if (!res.ok) throw new Error(data.error || ('HTTP '+res.status));
         messages.style.color = '#0b8a57';
         messages.textContent = `Preparación completa. IP: ${data.ip}. Ahora sube el ZIP y pulsa Publicar.`;
+        setTimeout(() => {
+          if (typeof window.loadDNSLogs === 'function') window.loadDNSLogs();
+          if (typeof window.loadDNSDirect === 'function') window.loadDNSDirect();
+        }, 500);
       } catch (e) {
         messages.style.color = '#b02a37';
         messages.textContent = 'Error en preparación: ' + e.message;
@@ -66,6 +70,8 @@ const btnAccept = document.getElementById('btnAccept');
         const data = await res.json();
         messages.style.color = '#0b8a57';
         messages.textContent = `Sitio publicado: ${data.url}.`;
+        // Actualizar registro de actividad después de publicar
+        if (typeof loadAndRender === 'function') loadAndRender(true);
       } catch (err) {
         messages.style.color = '#b02a37';
         messages.textContent = 'Error enviando solicitud: ' + err.message;
