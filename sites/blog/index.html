@@ -3,26 +3,321 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Blog estático</title>
+  <title>TechBlog - Tecnología y Desarrollo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Header -->
   <header class="header">
-    <h1>Mi Blog Estático</h1>
-    <p>Plantilla minimal para pruebas de despliegue.</p>
+    <div class="header-container">
+      <div class="logo-section">
+        <h1 class="logo">TechBlog</h1>
+        <p class="tagline">Tecnología, Desarrollo y Cloud Computing</p>
+      </div>
+      <nav class="nav">
+        <a href="#inicio" class="nav-link">Inicio</a>
+        <a href="#articulos" class="nav-link">Artículos</a>
+        <a href="#categorias" class="nav-link">Categorías</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
+      </nav>
+    </div>
   </header>
-  <main class="posts">
-    <article class="post">
-      <h2>Primer post</h2>
-      <p>Este es un post de ejemplo publicado desde un ZIP.</p>
-    </article>
-    <article class="post">
-      <h2>Segundo post</h2>
-      <p>Úsalo para validar estilos, assets y rutas.</p>
-    </article>
+
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-content">
+      <h2 class="hero-title">Últimas Tendencias en Tecnología</h2>
+      <p class="hero-text">Explora artículos sobre desarrollo, cloud computing, automatización y más</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Articles Grid -->
+      <section id="articulos" class="articles-section">
+        <div class="section-header">
+          <h2>Artículos Recientes</h2>
+          <span class="article-count">12 artículos</span>
+        </div>
+
+        <div class="articles-grid">
+          <!-- Article 1 -->
+          <article class="article-card featured">
+            <div class="article-image">
+              <div class="image-placeholder">🚀</div>
+            </div>
+            <div class="article-category">Cloud Computing</div>
+            <h3 class="article-title">
+              <a href="#">Cómo Migrar tu Infraestructura a la Nube en 2025</a>
+            </h3>
+            <p class="article-excerpt">
+              Una guía completa sobre las mejores prácticas para migrar servicios críticos a plataformas cloud, 
+              incluyendo estrategias de costos, seguridad y escalabilidad.
+            </p>
+            <div class="article-meta">
+              <div class="author">
+                <span class="author-avatar">👤</span>
+                <span class="author-name">María González</span>
+              </div>
+              <time class="article-date">15 Ene 2025</time>
+            </div>
+            <div class="article-tags">
+              <span class="tag">Cloud</span>
+              <span class="tag">DevOps</span>
+              <span class="tag">Infraestructura</span>
+            </div>
+          </article>
+
+          <!-- Article 2 -->
+          <article class="article-card">
+            <div class="article-image">
+              <div class="image-placeholder">⚡</div>
+            </div>
+            <div class="article-category">Desarrollo</div>
+            <h3 class="article-title">
+              <a href="#">Automatización de Despliegues con CI/CD</a>
+            </h3>
+            <p class="article-excerpt">
+              Aprende a configurar pipelines de CI/CD eficientes usando GitHub Actions, Docker y Kubernetes 
+              para automatizar tus despliegues.
+            </p>
+            <div class="article-meta">
+              <div class="author">
+                <span class="author-avatar">👤</span>
+                <span class="author-name">Carlos Ruiz</span>
+              </div>
+              <time class="article-date">12 Ene 2025</time>
+            </div>
+            <div class="article-tags">
+              <span class="tag">CI/CD</span>
+              <span class="tag">Docker</span>
+            </div>
+          </article>
+
+          <!-- Article 3 -->
+          <article class="article-card">
+            <div class="article-image">
+              <div class="image-placeholder">🔒</div>
+            </div>
+            <div class="article-category">Seguridad</div>
+            <h3 class="article-title">
+              <a href="#">Mejores Prácticas de Seguridad en APIs REST</a>
+            </h3>
+            <p class="article-excerpt">
+              Implementa autenticación robusta, rate limiting y validación de datos para proteger tus APIs 
+              contra vulnerabilidades comunes.
+            </p>
+            <div class="article-meta">
+              <div class="author">
+                <span class="author-avatar">👤</span>
+                <span class="author-name">Ana Martínez</span>
+              </div>
+              <time class="article-date">10 Ene 2025</time>
+            </div>
+            <div class="article-tags">
+              <span class="tag">API</span>
+              <span class="tag">Seguridad</span>
+            </div>
+          </article>
+
+          <!-- Article 4 -->
+          <article class="article-card">
+            <div class="article-image">
+              <div class="image-placeholder">☁️</div>
+            </div>
+            <div class="article-category">Cloud Computing</div>
+            <h3 class="article-title">
+              <a href="#">Optimización de Costos en AWS: Guía Definitiva</a>
+            </h3>
+            <p class="article-excerpt">
+              Estrategias prácticas para reducir hasta un 40% tus costos en AWS sin sacrificar rendimiento, 
+              usando reservas, spot instances y auto-scaling inteligente.
+            </p>
+            <div class="article-meta">
+              <div class="author">
+                <span class="author-avatar">👤</span>
+                <span class="author-name">Luis Fernández</span>
+              </div>
+              <time class="article-date">8 Ene 2025</time>
+            </div>
+            <div class="article-tags">
+              <span class="tag">AWS</span>
+              <span class="tag">Costos</span>
+              <span class="tag">Optimización</span>
+            </div>
+          </article>
+
+          <!-- Article 5 -->
+          <article class="article-card">
+            <div class="article-image">
+              <div class="image-placeholder">🐳</div>
+            </div>
+            <div class="article-category">DevOps</div>
+            <h3 class="article-title">
+              <a href="#">Docker Multi-Stage Builds: Construyendo Imágenes Eficientes</a>
+            </h3>
+            <p class="article-excerpt">
+              Reduce el tamaño de tus imágenes Docker en un 70% usando multi-stage builds y optimiza tus 
+              pipelines de construcción.
+            </p>
+            <div class="article-meta">
+              <div class="author">
+                <span class="author-avatar">👤</span>
+                <span class="author-name">Sofía López</span>
+              </div>
+              <time class="article-date">5 Ene 2025</time>
+            </div>
+            <div class="article-tags">
+              <span class="tag">Docker</span>
+              <span class="tag">DevOps</span>
+            </div>
+          </article>
+
+          <!-- Article 6 -->
+          <article class="article-card">
+            <div class="article-image">
+              <div class="image-placeholder">🌐</div>
+            </div>
+            <div class="article-category">Desarrollo</div>
+            <h3 class="article-title">
+              <a href="#">Building Scalable Web Applications with Go</a>
+            </h3>
+            <p class="article-excerpt">
+              Descubre cómo construir aplicaciones web escalables y de alto rendimiento usando Go, 
+              desde APIs REST hasta microservicios distribuidos.
+            </p>
+            <div class="article-meta">
+              <div class="author">
+                <span class="author-avatar">👤</span>
+                <span class="author-name">Miguel Torres</span>
+              </div>
+              <time class="article-date">3 Ene 2025</time>
+            </div>
+            <div class="article-tags">
+              <span class="tag">Go</span>
+              <span class="tag">Backend</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="pagination-btn active">1</button>
+          <button class="pagination-btn">2</button>
+          <button class="pagination-btn">3</button>
+          <button class="pagination-btn">Siguiente →</button>
+        </div>
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Categories -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">Categorías</h3>
+          <ul class="category-list">
+            <li><a href="#" class="category-link">Cloud Computing <span class="category-count">8</span></a></li>
+            <li><a href="#" class="category-link">Desarrollo <span class="category-count">15</span></a></li>
+            <li><a href="#" class="category-link">DevOps <span class="category-count">12</span></a></li>
+            <li><a href="#" class="category-link">Seguridad <span class="category-count">6</span></a></li>
+            <li><a href="#" class="category-link">Infraestructura <span class="category-count">9</span></a></li>
+          </ul>
+        </div>
+
+        <!-- Popular Posts -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">Artículos Populares</h3>
+          <div class="popular-posts">
+            <div class="popular-post">
+              <div class="popular-post-icon">🔥</div>
+              <div class="popular-post-content">
+                <h4><a href="#">Cómo Migrar tu Infraestructura a la Nube</a></h4>
+                <time>15 Ene 2025</time>
+              </div>
+            </div>
+            <div class="popular-post">
+              <div class="popular-post-icon">⭐</div>
+              <div class="popular-post-content">
+                <h4><a href="#">Automatización de Despliegues con CI/CD</a></h4>
+                <time>12 Ene 2025</time>
+              </div>
+            </div>
+            <div class="popular-post">
+              <div class="popular-post-icon">📈</div>
+              <div class="popular-post-content">
+                <h4><a href="#">Optimización de Costos en AWS</a></h4>
+                <time>8 Ene 2025</time>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="sidebar-widget newsletter-widget">
+          <h3 class="widget-title">Newsletter</h3>
+          <p class="newsletter-text">Recibe nuestros artículos directamente en tu correo</p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="tu@email.com" class="newsletter-input" required>
+            <button type="submit" class="newsletter-btn">Suscribirse</button>
+          </form>
+        </div>
+
+        <!-- Tags Cloud -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">Etiquetas</h3>
+          <div class="tags-cloud">
+            <span class="tag-large">Cloud</span>
+            <span class="tag-large">DevOps</span>
+            <span class="tag-large">AWS</span>
+            <span class="tag-large">Docker</span>
+            <span class="tag-large">Kubernetes</span>
+            <span class="tag-large">Go</span>
+            <span class="tag-large">CI/CD</span>
+            <span class="tag-large">Seguridad</span>
+            <span class="tag-large">API</span>
+            <span class="tag-large">Microservicios</span>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
-  <footer class="footer"><a href="health.txt">health.txt</a></footer>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>TechBlog</h3>
+        <p>Tu fuente de conocimiento sobre tecnología y desarrollo.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Enlaces</h4>
+        <ul>
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#articulos">Artículos</a></li>
+          <li><a href="#categorias">Categorías</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Redes Sociales</h4>
+        <div class="social-links">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Política de Privacidad</a></li>
+          <li><a href="#">Términos de Uso</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 TechBlog. Todos los derechos reservados.</p>
+      <p><a href="health.txt" target="_blank">health.txt</a></p>
+    </div>
+  </footer>
 </body>
 </html>
-
-

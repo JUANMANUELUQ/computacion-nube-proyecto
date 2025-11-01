@@ -1,14 +1,14 @@
 [
   {
-    "timestamp": "2025-10-31T02:03:10Z",
+    "timestamp": "2025-11-01T22:26:03Z",
     "action": "ADD",
-    "fqdn": "hola.grid.lab",
+    "fqdn": "blog.grid.lab",
     "ip": "192.168.56.12"
   },
   {
-    "timestamp": "2025-10-31T02:07:59Z",
-    "action": "DELETE",
-    "fqdn": "hola.grid.lab",
-    "ip": "192.168.56.12"
+    "timestamp": "2025-11-01T22:28:28Z",
+    "action": "ADD",
+    "fqdn": "negocios.grid.lab",
+    "ip": "192.168.56.13"
   }
 ]

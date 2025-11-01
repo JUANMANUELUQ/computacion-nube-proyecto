@@ -3,20 +3,247 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Negocios</title>
+  <title>TechGrid Solutions - Servicios Empresariales</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav class="topbar">Negocios .grid.lab</nav>
-  <section class="cards">
-    <article class="card"><h3>Servicios</h3><p>Consultoría, soporte y optimización.</p></article>
-    <article class="card"><h3>Productos</h3><p>Sitios estáticos, APIs y automatización.</p></article>
-    <article class="card"><h3>Contacto</h3><p>Escríbenos a contacto@negocios.grid.lab</p></article>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">TechGrid Solutions</div>
+      <ul class="nav-menu">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#productos">Productos</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="inicio" class="hero">
+    <div class="hero-content">
+      <h1>Transformamos tu Negocio con Tecnología</h1>
+      <p class="hero-subtitle">Soluciones empresariales en la nube, automatización y desarrollo web de alta calidad</p>
+      <div class="hero-buttons">
+        <a href="#contacto" class="btn btn-primary">Comenzar Ahora</a>
+        <a href="#servicios" class="btn btn-secondary">Nuestros Servicios</a>
+      </div>
+    </div>
   </section>
-  <footer>
-    <a href="health.txt" target="_blank">health.txt</a>
+
+  <!-- Services Section -->
+  <section id="servicios" class="services">
+    <div class="container">
+      <h2 class="section-title">Nuestros Servicios</h2>
+      <p class="section-subtitle">Ofrecemos soluciones integrales para impulsar tu negocio</p>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">💼</div>
+          <h3>Consultoría Técnica</h3>
+          <p>Análisis estratégico y recomendaciones personalizadas para optimizar tu infraestructura tecnológica y procesos empresariales.</p>
+          <ul>
+            <li>Auditorías de infraestructura</li>
+            <li>Planificación estratégica</li>
+            <li>Optimización de costos</li>
+          </ul>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">☁️</div>
+          <h3>Soporte en la Nube</h3>
+          <p>Gestión completa de servicios cloud, migración segura y monitoreo 24/7 para garantizar la máxima disponibilidad.</p>
+          <ul>
+            <li>Migración a la nube</li>
+            <li>Backup y recuperación</li>
+            <li>Monitoreo proactivo</li>
+          </ul>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🚀</div>
+          <h3>Desarrollo Web</h3>
+          <p>Aplicaciones web modernas, APIs robustas y sitios estáticos optimizados con las últimas tecnologías.</p>
+          <ul>
+            <li>Aplicaciones web responsivas</li>
+            <li>APIs RESTful</li>
+            <li>Optimización SEO</li>
+          </ul>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">⚙️</div>
+          <h3>Automatización</h3>
+          <p>Automatización de procesos, CI/CD, y pipelines de despliegue para acelerar tu ciclo de desarrollo.</p>
+          <ul>
+            <li>CI/CD pipelines</li>
+            <li>Automatización de despliegues</li>
+            <li>Scripts personalizados</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section id="productos" class="products">
+    <div class="container">
+      <h2 class="section-title">Nuestros Productos</h2>
+      <p class="section-subtitle">Soluciones listas para usar</p>
+      <div class="products-grid">
+        <div class="product-card">
+          <div class="product-badge">Popular</div>
+          <h3>Sitios Web Estáticos</h3>
+          <p class="product-price">Desde $299/mes</p>
+          <p>Alojamiento de sitios estáticos con CDN global, SSL automático y despliegue instantáneo.</p>
+          <div class="product-features">
+            <span class="feature-tag">CDN Global</span>
+            <span class="feature-tag">SSL Incluido</span>
+            <span class="feature-tag">99.9% Uptime</span>
+          </div>
+        </div>
+        <div class="product-card">
+          <div class="product-badge featured">Recomendado</div>
+          <h3>APIs Empresariales</h3>
+          <p class="product-price">Desde $499/mes</p>
+          <p>APIs RESTful escalables con documentación completa, rate limiting y monitoreo avanzado.</p>
+          <div class="product-features">
+            <span class="feature-tag">Escalable</span>
+            <span class="feature-tag">Documentación</span>
+            <span class="feature-tag">Soporte 24/7</span>
+          </div>
+        </div>
+        <div class="product-card">
+          <h3>Plataforma de Automatización</h3>
+          <p class="product-price">Desde $799/mes</p>
+          <p>Plataforma completa para automatización de infraestructura, despliegues y orquestación de servicios.</p>
+          <div class="product-features">
+            <span class="feature-tag">Multi-cloud</span>
+            <span class="feature-tag">Auto-scaling</span>
+            <span class="feature-tag">Dashboard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="nosotros" class="about">
+    <div class="container">
+      <div class="about-content">
+        <div class="about-text">
+          <h2>Nosotros</h2>
+          <p>TechGrid Solutions es una empresa líder en servicios de tecnología empresarial en la nube. Con más de 10 años de experiencia, ayudamos a empresas de todos los tamaños a transformar sus operaciones digitales.</p>
+          <p>Nuestro equipo de expertos está comprometido con la excelencia y la innovación, brindando soluciones que impulsan el crecimiento y la eficiencia operativa.</p>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-number">500+</div>
+              <div class="stat-label">Clientes Satisfechos</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">99.9%</div>
+              <div class="stat-label">Uptime Promedio</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Soporte Disponible</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contacto" class="contact">
+    <div class="container">
+      <h2 class="section-title">Contáctanos</h2>
+      <p class="section-subtitle">Estamos listos para ayudarte. Envíanos un mensaje y te responderemos pronto.</p>
+      <div class="contact-content">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="contact-icon">📧</div>
+            <div>
+              <h4>Email</h4>
+              <p>contacto@negocios.grid.lab</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📞</div>
+            <div>
+              <h4>Teléfono</h4>
+              <p>+1 (555) 123-4567</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <h4>Oficina</h4>
+              <p>123 Tech Street, Cloud City, CC 12345</p>
+            </div>
+          </div>
+        </div>
+        <form class="contact-form">
+          <div class="form-group">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+          </div>
+          <div class="form-group">
+            <label for="subject">Asunto</label>
+            <input type="text" id="subject" name="subject" placeholder="¿En qué podemos ayudarte?" required>
+          </div>
+          <div class="form-group">
+            <label for="message">Mensaje</label>
+            <textarea id="message" name="message" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>TechGrid Solutions</h3>
+          <p>Transformando negocios con tecnología de vanguardia.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Enlaces Rápidos</h4>
+          <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#productos">Productos</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Servicios</h4>
+          <ul>
+            <li>Consultoría</li>
+            <li>Soporte Cloud</li>
+            <li>Desarrollo Web</li>
+            <li>Automatización</li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Síguenos</h4>
+          <div class="social-links">
+            <a href="#" aria-label="LinkedIn">LinkedIn</a>
+            <a href="#" aria-label="Twitter">Twitter</a>
+            <a href="#" aria-label="GitHub">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 TechGrid Solutions. Todos los derechos reservados.</p>
+        <p><a href="health.txt" target="_blank">health.txt</a></p>
+      </div>
+    </div>
   </footer>
 </body>
 </html>
-
-

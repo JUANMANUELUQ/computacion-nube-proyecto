@@ -235,12 +235,19 @@ function renderDNSDirect(records) {
 async function loadDNSDirect() {
   try {
     const res = await fetch('/dns-direct', { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Error HTTP ' + res.status);
+    }
     renderDNSDirect(data);
   } catch (err) {
     console.error('Error leyendo DNS directo:', err);
     const c = document.getElementById('dnsDirectBody');
-    if (c) c.innerHTML = '<div style="color:#d11a2a;text-align:center;">Error leyendo zona en DNS.</div>';
+    if (c) {
+      let msg = err.message || 'Error leyendo zona en DNS.';
+      // Convertir saltos de línea en <br> para mejor visualización
+      msg = msg.replace(/\n/g, '<br>');
+      c.innerHTML = `<div style="color:#d11a2a;text-align:left;padding:15px;background:#fff3cd;border:1px solid #ffc107;border-radius:4px;font-size:0.9em;line-height:1.5;">${msg}</div>`;
+    }
   }
 }
